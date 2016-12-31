@@ -18,18 +18,7 @@ func (s *S) Seed(cells []P) {
 
 // Tick will calculate the next iteration of the simulation universe, and assign to C.
 func (s *S) Tick() {
-	neighbourCounts := make(map[P]int)
-
-	for _, c := range s.Cells {
-		if !c.Live {
-			continue
-		}
-
-		for _, np := range neighbours(c.Pos) {
-			neighbourCounts[np] += 1
-			ensureCell(s.Cells, np)
-		}
-	}
+	neighbourCounts := buildNeighbourCounts(s.Cells)
 
 	for _, c := range s.Cells {
 		c.Live = applyRules(c.Live, neighbourCounts[c.Pos])
@@ -49,6 +38,23 @@ type C struct {
 // P is a position in the universe.
 type P struct {
 	X, Y int
+}
+
+func buildNeighbourCounts(cells map[P]*C) map[P]int {
+	neighbourCounts := make(map[P]int)
+
+	for _, c := range cells {
+		if !c.Live {
+			continue
+		}
+
+		for _, np := range neighbours(c.Pos) {
+			neighbourCounts[np] += 1
+			ensureCell(cells, np)
+		}
+	}
+
+	return neighbourCounts
 }
 
 func applyRules(live bool, neighbours int) bool {

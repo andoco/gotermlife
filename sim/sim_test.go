@@ -59,6 +59,22 @@ func TestNeighbours(t *testing.T) {
 	}
 }
 
+func TestBuildNeighbourCounts(t *testing.T) {
+	cells := make(map[P]*C)
+	cells[P{0, 0}] = &C{P{0, 0}, true}
+	counts := buildNeighbourCounts(cells)
+
+	if len(counts) != 8 {
+		t.Fatalf("expected 8 counts, got %d", len(counts))
+	}
+
+	for _, v := range counts {
+		if v != 1 {
+			t.Fatalf("expected count of 1, got %d", v)
+		}
+	}
+}
+
 func TestApplyRules(t *testing.T) {
 	testCases := []struct {
 		neighboursAlive int
