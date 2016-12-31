@@ -1,7 +1,11 @@
 package main
 
-import "github.com/andoco/gotermlife/sim"
-import tl "github.com/JoelOtter/termloop"
+import (
+	"math/rand"
+
+	tl "github.com/JoelOtter/termloop"
+	"github.com/andoco/gotermlife/sim"
+)
 
 type SimLevel struct {
 	*tl.BaseLevel
@@ -28,18 +32,21 @@ func (sl *SimLevel) Draw(s *tl.Screen) {
 }
 
 func main() {
-	liveCell = &tl.Cell{Fg: tl.ColorRed, Ch: '*'}
+	liveCell = &tl.Cell{Ch: '◼'}
 
 	s := sim.New()
-	s.Seed([]sim.P{{5, 5}, {10, 10}})
+	//s.Seed([]sim.P{{5, 5}, {6, 5}, {7, 5}})
+
+	seed := []sim.P{}
+	for i := 0; i < 1000; i++ {
+		seed = append(seed, sim.P{rand.Intn(80), rand.Intn(80)})
+	}
+
+	s.Seed(seed)
 
 	game := tl.NewGame()
 
-	level := tl.NewBaseLevel(tl.Cell{
-		Bg: tl.ColorGreen,
-		Fg: tl.ColorBlack,
-		Ch: ' ',
-	})
+	level := tl.NewBaseLevel(tl.Cell{})
 
 	simLevel := &SimLevel{level, s}
 
