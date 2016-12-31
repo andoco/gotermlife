@@ -41,7 +41,6 @@ func main() {
 	for i := 0; i < 1000; i++ {
 		seed = append(seed, sim.P{rand.Intn(80), rand.Intn(80)})
 	}
-
 	s.Seed(seed)
 
 	game := tl.NewGame()

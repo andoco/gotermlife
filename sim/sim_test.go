@@ -44,17 +44,15 @@ func TestNeighbours(t *testing.T) {
 	}
 
 	for _, tc := range testCases {
-		s := New()
-
 		t.Run(tc.name, func(t *testing.T) {
-			n := s.neighbourCells(tc.pos)
+			n := neighbours(tc.pos)
 			if len(n) != len(tc.neighbours) {
 				t.Fatalf("expected %d neighbours, got %d", len(tc.neighbours), len(n))
 			}
 
 			for i, _ := range tc.neighbours {
-				if tc.neighbours[i] != n[i].Pos {
-					t.Errorf("expected %d, got %d", tc.neighbours[i], n[i].Pos)
+				if tc.neighbours[i] != n[i] {
+					t.Errorf("expected %d, got %d", tc.neighbours[i], n[i])
 				}
 			}
 		})
@@ -113,5 +111,24 @@ func TestApplyRules(t *testing.T) {
 				t.Errorf("expected alive=%v, got %v", tc.outAlive, alive)
 			}
 		})
+	}
+}
+
+func TestEnsureCell(t *testing.T) {
+	m := make(map[P]*C)
+	p := P{1, 1}
+	ensureCell(m, p)
+	c, ok := m[p]
+
+	if !ok {
+		t.Fatalf("expected cell, got none")
+	}
+
+	if c.Pos != p {
+		t.Errorf("expected %v, got %v", p, c.Pos)
+	}
+
+	if c.Live {
+		t.Error("expected dead cell, but was alive")
 	}
 }

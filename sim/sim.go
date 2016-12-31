@@ -12,35 +12,38 @@ type S struct {
 // Seed sets the initial live cells in the simulation.
 func (s *S) Seed(cells []P) {
 	for _, p := range cells {
-		s.Cells[p] = &C{p, 0, true}
+		s.Cells[p] = &C{p, true}
 	}
 }
 
 // Tick will calculate the next iteration of the simulation universe, and assign to C.
 func (s *S) Tick() {
-	for _, c := range s.Cells {
-		c.NeighbourCount = 0
-	}
+	neighbourCounts := make(map[P]int)
 
 	for _, c := range s.Cells {
-		neighbours := s.neighbourCells(c.Pos)
-		for _, nc := range neighbours {
-			if c.Live {
-				nc.NeighbourCount += 1
-			}
+		if !c.Live {
+			continue
+		}
+
+		for _, np := range neighbours(c.Pos) {
+			neighbourCounts[np] += 1
+			ensureCell(s.Cells, np)
 		}
 	}
 
 	for _, c := range s.Cells {
-		c.Live = applyRules(c.Live, c.NeighbourCount)
+		c.Live = applyRules(c.Live, neighbourCounts[c.Pos])
+
+		if !c.Live {
+			delete(s.Cells, c.Pos)
+		}
 	}
 }
 
 // C is the state of a cell in the simulation universe.
 type C struct {
-	Pos            P
-	NeighbourCount int
-	Live           bool
+	Pos  P
+	Live bool
 }
 
 // P is a position in the universe.
@@ -68,26 +71,24 @@ func applyRules(live bool, neighbours int) bool {
 	return live
 }
 
-func (s *S) neighbourCells(pos P) []*C {
-	get := func(pos P) *C {
-		c, ok := s.Cells[pos]
-		if !ok {
-			c = &C{Pos: pos}
-			s.Cells[pos] = c
-		}
-		return c
-	}
-
-	n := []*C{
-		get(P{pos.X, pos.Y - 1}),
-		get(P{pos.X + 1, pos.Y - 1}),
-		get(P{pos.X + 1, pos.Y}),
-		get(P{pos.X + 1, pos.Y + 1}),
-		get(P{pos.X, pos.Y + 1}),
-		get(P{pos.X - 1, pos.Y + 1}),
-		get(P{pos.X - 1, pos.Y}),
-		get(P{pos.X - 1, pos.Y - 1}),
+func neighbours(pos P) []P {
+	n := []P{
+		P{pos.X, pos.Y - 1},
+		P{pos.X + 1, pos.Y - 1},
+		P{pos.X + 1, pos.Y},
+		P{pos.X + 1, pos.Y + 1},
+		P{pos.X, pos.Y + 1},
+		P{pos.X - 1, pos.Y + 1},
+		P{pos.X - 1, pos.Y},
+		P{pos.X - 1, pos.Y - 1},
 	}
 
 	return n
+}
+
+func ensureCell(m map[P]*C, p P) {
+	_, ok := m[p]
+	if !ok {
+		m[p] = &C{p, false}
+	}
 }
