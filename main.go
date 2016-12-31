@@ -51,7 +51,7 @@ func main() {
 
 	seed := []sim.P{}
 	for i := 0; i < 1000; i++ {
-		seed = append(seed, sim.P{rand.Intn(80), rand.Intn(80)})
+		seed = append(seed, sim.P{rand.Intn(80), rand.Intn(40)})
 	}
 	s.Seed(seed)
 
