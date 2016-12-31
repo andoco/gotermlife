@@ -9,7 +9,9 @@ import (
 
 type SimLevel struct {
 	*tl.BaseLevel
-	sim *sim.S
+	sim     *sim.S
+	offsetX int
+	offsetY int
 }
 
 var liveCell *tl.Cell
@@ -19,14 +21,24 @@ func (sl *SimLevel) Tick(event tl.Event) {
 		switch event.Key { // If so, switch on the pressed key.
 		case tl.KeySpace:
 			sl.sim.Tick()
+		case tl.KeyArrowUp:
+			sl.offsetY += 1
+		case tl.KeyArrowDown:
+			sl.offsetY -= 1
+		case tl.KeyArrowLeft:
+			sl.offsetX += 1
+		case tl.KeyArrowRight:
+			sl.offsetX -= 1
 		}
 	}
+
+	sl.sim.Tick()
 }
 
 func (sl *SimLevel) Draw(s *tl.Screen) {
 	for _, c := range sl.sim.Cells {
 		if c.Live {
-			s.RenderCell(c.Pos.X, c.Pos.Y, liveCell)
+			s.RenderCell(sl.offsetX+c.Pos.X, sl.offsetY+c.Pos.Y, liveCell)
 		}
 	}
 }
@@ -47,8 +59,9 @@ func main() {
 
 	level := tl.NewBaseLevel(tl.Cell{})
 
-	simLevel := &SimLevel{level, s}
+	simLevel := &SimLevel{level, s, 0, 0}
 
 	game.Screen().SetLevel(simLevel)
+	game.Screen().SetFps(10)
 	game.Start()
 }
